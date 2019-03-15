@@ -45,9 +45,9 @@ S = tf.placeholder(dtype=tf.float64, shape=[None, net.STATE_LEN], name='S')
 
 global_step = tf.Variable(0, trainable=False)
 
-STARTER_LEARNING_RATE = 0.01
-DECAY_STEPS = 50
-DECAY_RATE = 0.98
+STARTER_LEARNING_RATE = 0.00005
+DECAY_STEPS = 100
+DECAY_RATE = 0.99
 MOVING_AVERAGE_DECAY = 0.99
 
 
@@ -81,21 +81,21 @@ with tf.control_dependencies([opt_op]):
 with tf.Session() as sess:
     writer = tf.summary.FileWriter("logs/", sess.graph)
     sess.run(tf.global_variables_initializer())
-    for epoch in range(100):
+    for epoch in range(3000):
 
         a = sess.run(accuracy, feed_dict={
-            X: data[700:, :],
-            Y: label[700:, :],
-            S: np.zeros([label.shape[0]-700, net.STATE_LEN])})
+            X: data[100:, :],
+            Y: label[100:, :],
+            S: np.zeros([label.shape[0]-100, net.STATE_LEN])})
 
         acc.append(a)
-        # if epoch % 100 == 0:
-        print(str(epoch) + '  ' + str(a))
+        if epoch % 100 == 0:
+         print(str(epoch) + '  ' + str(a))
 
         sess.run(training_op, feed_dict={
-            X: data[0:700, :],
-            Y: label[0:700, :],
-            S: np.zeros([700, net.STATE_LEN])})
+            X: data[0:100, :],
+            Y: label[0:100, :],
+            S: np.zeros([100, net.STATE_LEN])})
 
     print(sess.run(weights))
 
