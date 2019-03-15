@@ -6,6 +6,10 @@ CHANNEL0 = 64
 WIDTH0 = 6
 HEIGHT0 = 256
 
+SLICE_LEN = 8
+SLICE_COUNT = int(40/SLICE_LEN)
+STATE_LEN = 1
+
 FULLY_WIDTH0 = 2
 
 FULLY_WIDTH1 = 2
@@ -21,21 +25,22 @@ def inference(inputs, init_state):
 
         inputs_slice = []
         net_slice = []
-        weights_rnn = tf.Variable(tf.random_normal([12, 4], stddev=1, dtype=tf.float64), name='w')
-        biases_rnn = tf.Variable(tf.random_normal([1, 4], stddev=0, dtype=tf.float64, mean=0.1), name='b')
+        weights_rnn = tf.Variable(tf.random_normal([SLICE_LEN + STATE_LEN, STATE_LEN], stddev=1, dtype=tf.float64), name='w')
+        biases_rnn = tf.Variable(tf.random_normal([1, STATE_LEN], stddev=0, dtype=tf.float64, mean=0.1), name='b')
 
         state = init_state
-        for i in range(5):
-            ns = inputs[:, i * 8:i * 8 + 8]
+        for i in range(SLICE_COUNT):
+            ns = inputs[:, i * SLICE_LEN:i * SLICE_LEN + SLICE_LEN]
             inputs_slice.append(ns)
             state = __cell(ns, state, weights_rnn, biases_rnn)
             net_slice.append(state)
         print(state.get_shape())
-        net = tf.concat([net_slice[i] for i in range(5)], 1)
+        # net = tf.concat([net_slice[i] for i in range(SLICE_COUNT)], 1)
+        net = net_slice[SLICE_COUNT - 1]
         net = slim.fully_connected(net, FULLY_WIDTH1, scope="fully_connected2", activation_fn=None)
         return net
 
 
 def __cell(cell_input, state, weights, biases,):
-    net = tf.tanh(tf.matmul(tf.concat([state, cell_input], 1), weights) + biases)
+    net = tf.nn.relu(tf.matmul(tf.concat([state, cell_input], 1), weights) + biases)
     return net
