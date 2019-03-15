@@ -9,12 +9,26 @@ label = []
 for i in range(1000):
     d = np.random.normal(0, 1, size=40)
     data.append(d)
-    sum0 = 0
-    sum1 = 0
-    for j in range(20):
-        sum0 += d[j * 2]
-        sum1 += d[j * 2 + 1]
-    if sum0 >= sum1:
+    sum0 = []
+    for j in range(5):
+        s = 0
+        ii = j * 8
+        for k in range(8):
+            s += d[ii + k]
+        sum0.append(s)
+
+    ll = 0
+    last_sum = sum0[0]
+    for j in range(1, 5):
+        if last_sum <= sum0[j]:
+            ll += 1
+        else:
+            ll = 0
+        if ll >= 3:
+            break
+        last_sum = sum0[j]
+
+    if ll >= 3:
         label.append([1, 0])
     else:
         label.append([0, 1])
@@ -27,11 +41,11 @@ print(label.shape)
 
 X = tf.placeholder(dtype=tf.float64, shape=[None, 40], name='X')
 Y = tf.placeholder(dtype=tf.float64, shape=[None, 2], name='Y')
-S = tf.placeholder(dtype=tf.float64, shape=[None, 4], name='S')
+S = tf.placeholder(dtype=tf.float64, shape=[None, net.STATE_LEN], name='S')
 
 global_step = tf.Variable(0, trainable=False)
 
-STARTER_LEARNING_RATE = 0.1
+STARTER_LEARNING_RATE = 0.01
 DECAY_STEPS = 50
 DECAY_RATE = 0.98
 MOVING_AVERAGE_DECAY = 0.99
@@ -67,11 +81,22 @@ with tf.control_dependencies([opt_op]):
 with tf.Session() as sess:
     writer = tf.summary.FileWriter("logs/", sess.graph)
     sess.run(tf.global_variables_initializer())
-    for epoch in range(3000):
-        a = sess.run(accuracy, feed_dict={X: data[700:, :], Y: label[700:, :], S: np.zeros([label.shape[0]-700, 4])})
+    for epoch in range(100):
+
+        a = sess.run(accuracy, feed_dict={
+            X: data[700:, :],
+            Y: label[700:, :],
+            S: np.zeros([label.shape[0]-700, net.STATE_LEN])})
+
         acc.append(a)
+        # if epoch % 100 == 0:
         print(str(epoch) + '  ' + str(a))
-        sess.run(training_op, feed_dict={X: data[0:700, :], Y: label[0:700, :], S: np.zeros([700, 4])})
+
+        sess.run(training_op, feed_dict={
+            X: data[0:700, :],
+            Y: label[0:700, :],
+            S: np.zeros([700, net.STATE_LEN])})
+
     print(sess.run(weights))
 
 acc = np.array(acc)
