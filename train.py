@@ -27,6 +27,7 @@ print(label.shape)
 
 X = tf.placeholder(dtype=tf.float64, shape=[None, 40], name='X')
 Y = tf.placeholder(dtype=tf.float64, shape=[None, 2], name='Y')
+S = tf.placeholder(dtype=tf.float64, shape=[None, 4], name='S')
 
 global_step = tf.Variable(0, trainable=False)
 
@@ -36,7 +37,7 @@ DECAY_RATE = 0.98
 MOVING_AVERAGE_DECAY = 0.99
 
 
-prediction = net.inference(X)
+prediction = net.inference(X, S)
 
 learning_rate = tf.train.exponential_decay(STARTER_LEARNING_RATE, global_step, DECAY_STEPS, DECAY_RATE, staircase=False)
 
@@ -67,10 +68,10 @@ with tf.Session() as sess:
     writer = tf.summary.FileWriter("logs/", sess.graph)
     sess.run(tf.global_variables_initializer())
     for epoch in range(3000):
-        a = sess.run(accuracy, feed_dict={X: data[700:-1, :], Y: label[700:-1, :]})
+        a = sess.run(accuracy, feed_dict={X: data[700:, :], Y: label[700:, :], S: np.zeros([label.shape[0]-700, 4])})
         acc.append(a)
         print(str(epoch) + '  ' + str(a))
-        sess.run(training_op, feed_dict={X: data[0:700, :], Y: label[0:700, :]})
+        sess.run(training_op, feed_dict={X: data[0:700, :], Y: label[0:700, :], S: np.zeros([700, 4])})
     print(sess.run(weights))
 
 acc = np.array(acc)
