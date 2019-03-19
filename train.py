@@ -1,43 +1,10 @@
 import tensorflow as tf
 import numpy as np
 import net
+import load
 import matplotlib.pyplot as plt
 
-data = []
-label = []
-
-for i in range(1000):
-    d = np.random.normal(0, 1, size=40)
-    data.append(d)
-    sum0 = []
-    for j in range(5):
-        s = 0
-        ii = j * 8
-        for k in range(8):
-            s += d[ii + k]
-        sum0.append(s)
-
-    ll = 0
-    last_sum = sum0[0]
-    for j in range(1, 5):
-        if last_sum <= sum0[j]:
-            ll += 1
-        else:
-            ll = 0
-        if ll >= 3:
-            break
-        last_sum = sum0[j]
-
-    if ll >= 3:
-        label.append([1, 0])
-    else:
-        label.append([0, 1])
-
-data = np.array(data)
-label = np.array(label)
-
-print(data.shape)
-print(label.shape)
+data, label = load.load_data_and_label()
 
 X = tf.placeholder(dtype=tf.float64, shape=[None, 40], name='X')
 Y = tf.placeholder(dtype=tf.float64, shape=[None, 2], name='Y')

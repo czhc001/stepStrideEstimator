@@ -22,8 +22,21 @@ def inference(inputs, init_state):
                         weights_regularizer=slim.l2_regularizer(0.0005)):
         # net = tf.reshape(net, [-1, ])
         # net = slim.conv2d(inputs, CHANNEL0, [WIDTH0, HEIGHT0])
-        net = inputs
 
+        inputs_slice = []
+        net_slice = []
+        weights_rnn = tf.Variable(tf.random_normal([SLICE_LEN + STATE_LEN, STATE_LEN], stddev=1, dtype=tf.float64), name='w')
+        biases_rnn = tf.Variable(tf.random_normal([1, STATE_LEN], stddev=0, dtype=tf.float64, mean=0.1), name='b')
+
+        state = init_state
+        for i in range(SLICE_COUNT):
+            ns = inputs[:, i * SLICE_LEN:i * SLICE_LEN + SLICE_LEN]
+            inputs_slice.append(ns)
+            state = __cell(ns, state, weights_rnn, biases_rnn)
+            net_slice.append(state)
+        print(state.get_shape())
+        # net = tf.concat([net_slice[i] for i in range(SLICE_COUNT)], 1)
+        net = net_slice[SLICE_COUNT - 1]
         net = slim.fully_connected(net, FULLY_WIDTH1, scope="fully_connected2", activation_fn=None)
         return net
 
