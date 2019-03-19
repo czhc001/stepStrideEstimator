@@ -11,14 +11,24 @@ FRAME_SIZE = 40
 def load_data_and_label():
     data = []
     label = []
-
+    '''
     init = np.random.randint(0, CLASS_NUM)
     seq_l = [init]
     for i in range(1, SEQ_MIN_LENGTH):
         if i >= 3 and  seq_l[i-3] ==0 and  seq_l[i-1] == 0:
             current_l = 1
-
-
+    '''
+    for _ in range(10000):
+        cl = np.random.randint(0, 3)
+        if cl == 0:
+            data.append(triangle())
+            label.append([1, 0, 0])
+        elif cl == 1:
+            data.append(oval())
+            label.append([0, 1, 0])
+        else:
+            data.append(echelon())
+            label.append([0, 0, 1])
 
     data = np.array(data)
     label = np.array(label)
@@ -48,7 +58,7 @@ def generate_data(datatype):
 
 
 def triangle():
-    noises = np.random.normal(0, 0.05, size=[FRAME_SIZE])
+    noises = np.random.normal(0, 0.01, size=[FRAME_SIZE])
     values = np.zeros([FRAME_SIZE], np.float64)
     high = np.random.normal(0.0, 1)
     high = np.abs(high) + 0.5
@@ -65,12 +75,12 @@ def triangle():
     for i1 in range(mid, en):
         value = (1.0 - float(i1 - mid) / float(en - mid)) * high
         values[i1] = value
-    # values = values + noises
+    values = values + noises
     return values
 
 
 def oval():
-    noises = np.random.normal(0, 0.05, size=[FRAME_SIZE])
+    noises = np.random.normal(0, 0.01, size=[FRAME_SIZE])
     values = np.zeros([FRAME_SIZE], np.float64)
     high = np.random.normal(0.0, 0.5)
     high = np.abs(high) + 0.5
@@ -86,12 +96,12 @@ def oval():
         values[i] = value
     for i in range(st, en):
         values[i] = values[i] * high / float(r)
-    # values = values + noises
+    values = values + noises
     return values
 
 
 def echelon():
-    noises = np.random.normal(0, 0.05, size=[FRAME_SIZE])
+    noises = np.random.normal(0, 0.01, size=[FRAME_SIZE])
     values = np.zeros([FRAME_SIZE], np.float64)
     high = np.random.normal(0.0, 1)
     high = np.abs(high) + 0.5
@@ -113,13 +123,15 @@ def echelon():
     for i2 in range(c, d):
         value = high * (1.0 - float(i2 - c) / float(d - c))
         values[i2] = value
-    # values = values + noises
+    values = values + noises
     return values
 
 
-for i in range(50):
+'''
+for i in range(100):
     plt.plot(np.array([i for i in range(FRAME_SIZE)]), oval(), color='r')
     plt.plot(np.array([i for i in range(FRAME_SIZE)]), echelon(), color='g')
     plt.plot(np.array([i for i in range(FRAME_SIZE)]), triangle(), color='b')
 
 plt.show()
+'''

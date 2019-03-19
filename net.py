@@ -1,29 +1,34 @@
 import tensorflow as tf
 import tensorflow.contrib.slim as slim
 import numpy as np
+import load
 
-CHANNEL0 = 64
-WIDTH0 = 6
-HEIGHT0 = 256
+INPUT_LEN = load.FRAME_SIZE
+
+CHANNEL0 = 8
+WIDTH0 = 10
+HEIGHT0 = 1
 
 SLICE_LEN = 8
 SLICE_COUNT = int(40/SLICE_LEN)
 STATE_LEN = 5
 
-FULLY_WIDTH0 = 2
+FULLY_WIDTH0 = 80
 
-FULLY_WIDTH1 = 2
+FULLY_WIDTH1 = 3
 
 
-def inference(inputs, init_state):
+def inference(inputs, init_state, keep_prob):
     with slim.arg_scope([slim.conv2d, slim.fully_connected],
                         activation_fn=tf.nn.relu,
-                        weights_initializer=tf.truncated_normal_initializer(0.0, 0.01),
+                        weights_initializer=tf.truncated_normal_initializer(0.0, 0.1),
                         weights_regularizer=slim.l2_regularizer(0.0005)):
-        # net = tf.reshape(net, [-1, ])
-        # net = slim.conv2d(inputs, CHANNEL0, [WIDTH0, HEIGHT0])
+        # net = tf.reshape(inputs, [-1, 1, INPUT_LEN, 1])
+        # net = slim.conv2d(net, CHANNEL0, [WIDTH0, HEIGHT0])
+        # net = tf.reshape(net, [-1, net.get_shape()[1] * net.get_shape()[2] * net.get_shape()[3]])
         net = inputs
-
+        net = slim.fully_connected(net, FULLY_WIDTH0, scope="fully_connected1", activation_fn=tf.nn.relu)
+        net = tf.nn.dropout(net, keep_prob=keep_prob)
         net = slim.fully_connected(net, FULLY_WIDTH1, scope="fully_connected2", activation_fn=None)
         return net
 
