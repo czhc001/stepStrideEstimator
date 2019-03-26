@@ -11,7 +11,7 @@ train_end = int(data.shape[0] * 0.75)
 
 X = tf.placeholder(dtype=tf.float64, shape=[None, frame_size], name='X')
 Y_ = tf.placeholder(dtype=tf.int64, shape=[None], name='Y_')
-Y = tf.one_hot(indices=Y_, depth=load.CLASS_NUM, on_value=1, off_value=0)
+Y = tf.one_hot(indices=Y_, depth=load.CLASS_NUM, on_value=1, off_value=0, name='Y')
 print(Y.get_shape())
 S = tf.placeholder(dtype=tf.float64, shape=[None, net.STATE_LEN], name='S')
 P = tf.placeholder(dtype=tf.float64, name='P')
@@ -59,14 +59,14 @@ with tf.Session() as sess:
 
         a = sess.run(accuracy, feed_dict={
             X: data[train_end:, :],
-            Y: label[train_end:],
+            Y_: label[train_end:],
             S: np.zeros([label.shape[0]-train_end, net.STATE_LEN]),
             P: 1})
         acc.append(a)
 
         at = sess.run(accuracy, feed_dict={
             X: data[0:train_end, :],
-            Y: label[0:train_end],
+            Y_: label[0:train_end],
             S: np.zeros([train_end, net.STATE_LEN]),
             P: 1})
         acct.append(at)
@@ -75,7 +75,7 @@ with tf.Session() as sess:
 
         sess.run(training_op, feed_dict={
             X: data[0:train_end, :],
-            Y: label[0:train_end],
+            Y_: label[0:train_end],
             S: np.zeros([train_end, net.STATE_LEN]),
             P: 0.5})
 
