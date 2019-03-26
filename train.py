@@ -3,6 +3,9 @@ import numpy as np
 import net
 import load
 import matplotlib.pyplot as plt
+import threading
+import time
+import sys
 
 
 frame_size = load.FRAME_SIZE
@@ -18,13 +21,14 @@ P = tf.placeholder(dtype=tf.float64, name='P')
 
 global_step = tf.Variable(0, trainable=False)
 
-STARTER_LEARNING_RATE = 5.0
+STARTER_LEARNING_RATE = 0.001
 DECAY_STEPS = 100
 DECAY_RATE = 0.99
 MOVING_AVERAGE_DECAY = 0.99
 
 
 prediction = net.inference(X, S, P)
+print(prediction.name)
 
 learning_rate = tf.train.exponential_decay(STARTER_LEARNING_RATE, global_step, DECAY_STEPS, DECAY_RATE, staircase=False)
 
@@ -47,8 +51,21 @@ graph = tf.get_default_graph()
 # weights0_avg = graph.get_tensor_by_name('fully_connected0/weights/ExponentialMovingAverage:0')
 # biases0_avg = variable_averages.average(biases0)
 
-acc = []
-acct = []
+accuracy_train = []
+accuracy_test = []
+
+train_pause = False
+
+
+def train_break():
+    global train_pause
+    input("Press any key to pause")
+    train_pause = True
+
+
+t = threading.Thread(target=train_break)
+t.setDaemon(True)
+t.start()
 
 with tf.control_dependencies([opt_op]):
     training_op = tf.group(variables_averages_op)
@@ -56,22 +73,24 @@ with tf.Session() as sess:
     writer = tf.summary.FileWriter("logs/", sess.graph)
     sess.run(tf.global_variables_initializer())
     for epoch in range(30000):
-
-        a = sess.run(accuracy, feed_dict={
+        if train_pause:
+            break
+        atest = sess.run(accuracy, feed_dict={
             X: data[train_end:, :],
             Y_: label[train_end:],
             S: np.zeros([label.shape[0]-train_end, net.STATE_LEN]),
             P: 1})
-        acc.append(a)
+        accuracy_train.append(atest)
 
-        at = sess.run(accuracy, feed_dict={
+        atrain = sess.run(accuracy, feed_dict={
             X: data[0:train_end, :],
             Y_: label[0:train_end],
             S: np.zeros([train_end, net.STATE_LEN]),
             P: 1})
-        acct.append(at)
+        accuracy_test.append(atrain)
         if epoch % 100 == 0:
-            print(str(epoch) + '  ' + str(a) + '  ' + str(at))
+            print(str(epoch) + '    Training Set Accuracy: ' + str(atrain))
+            print(str(epoch) + '    Test Set Accuracy:     ' + str(atest))
 
         sess.run(training_op, feed_dict={
             X: data[0:train_end, :],
@@ -81,9 +100,10 @@ with tf.Session() as sess:
 
     # print(sess.run(weights))
 
-acc = np.array(acc)
-acct = np.array(acct)
-plt.plot([i for i in range(acc.shape[0])], acc, color='r')
-plt.plot([i for i in range(acct.shape[0])], acct, color='g')
+accuracy_train = np.array(accuracy_train)
+accuracy_test = np.array(accuracy_test)
+plt.plot([i for i in range(accuracy_train.shape[0])], accuracy_train, color='r')
+plt.plot([i for i in range(accuracy_test.shape[0])], accuracy_test, color='g')
 plt.yticks([float(i) * 0.1 for i in range(11)])
+plt.legend()
 plt.show()

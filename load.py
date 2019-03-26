@@ -20,7 +20,17 @@ def load_data_and_label(path):
             data.append([row[i] for i in range(1, FRAME_SIZE + 1)])
     data = np.array(data, dtype=np.float64)
     label = np.array(label, dtype=np.int)
-    return [data, label]
+
+    ii = [i for i in range(label.shape[0])]
+    np.random.shuffle(ii)
+    data_ = []
+    label_ = []
+    for i in range(label.shape[0]):
+        data_.append(data[ii[i], :])
+        label_.append(label[ii[i]])
+    data_ = np.array(data_)
+    label_ = np.array(label_)
+    return [data_, label_]
 
 
 def generate_data(datatype):
