@@ -1,8 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import csv
 
-CLASS_NUM = 8
+
+CLASS_NUM = 3
 SEQ_MAX_LENGTH = 10
 SEQ_MIN_LENGTH = 5
 FRAME_SIZE = 1200
@@ -10,16 +10,30 @@ FRAME_WIDTH = 200
 FRAME_HEIGHT = 6
 
 
-def load_data_and_label(path):
+def load_data_and_label():
     data = []
     label = []
-    with open(path, 'r') as file:
-        content = csv.reader(file, delimiter=',')
-        for row in content:
-            label.append(row[0])
-            data.append([row[i] for i in range(1, FRAME_SIZE + 1)])
-    data = np.array(data, dtype=np.float64)
-    label = np.array(label, dtype=np.int)
+    '''
+    init = np.random.randint(0, CLASS_NUM)
+    seq_l = [init]
+    for i in range(1, SEQ_MIN_LENGTH):
+        if i >= 3 and  seq_l[i-3] ==0 and  seq_l[i-1] == 0:
+            current_l = 1
+    '''
+    for _ in range(10000):
+        cl = np.random.randint(0, 3)
+        if cl == 0:
+            data.append(triangle())
+            label.append([1, 0, 0])
+        elif cl == 1:
+            data.append(oval())
+            label.append([0, 1, 0])
+        else:
+            data.append(echelon())
+            label.append([0, 0, 1])
+
+    data = np.array(data)
+    label = np.array(label)
     return [data, label]
 
 

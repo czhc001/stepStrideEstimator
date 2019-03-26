@@ -4,10 +4,15 @@ import net
 import load
 import matplotlib.pyplot as plt
 
-data, label = load.load_data_and_label()
 
-X = tf.placeholder(dtype=tf.float64, shape=[None, 40], name='X')
-Y = tf.placeholder(dtype=tf.float64, shape=[None, 3], name='Y')
+frame_size = load.FRAME_SIZE
+data, label = load.load_data_and_label('C:\\SensorData\\data.csv')
+train_end = int(data.shape[0] * 0.75)
+
+X = tf.placeholder(dtype=tf.float64, shape=[None, frame_size], name='X')
+Y_ = tf.placeholder(dtype=tf.int64, shape=[None], name='Y_')
+Y = tf.one_hot(indices=Y_, depth=load.CLASS_NUM, on_value=1, off_value=0)
+print(Y.get_shape())
 S = tf.placeholder(dtype=tf.float64, shape=[None, net.STATE_LEN], name='S')
 P = tf.placeholder(dtype=tf.float64, name='P')
 
@@ -53,25 +58,25 @@ with tf.Session() as sess:
     for epoch in range(30000):
 
         a = sess.run(accuracy, feed_dict={
-            X: data[1000:, :],
-            Y: label[1000:, :],
-            S: np.zeros([label.shape[0]-1000, net.STATE_LEN]),
+            X: data[train_end:, :],
+            Y: label[train_end:],
+            S: np.zeros([label.shape[0]-train_end, net.STATE_LEN]),
             P: 1})
         acc.append(a)
 
         at = sess.run(accuracy, feed_dict={
-            X: data[0:1000, :],
-            Y: label[0:1000, :],
-            S: np.zeros([1000, net.STATE_LEN]),
+            X: data[0:train_end, :],
+            Y: label[0:train_end],
+            S: np.zeros([train_end, net.STATE_LEN]),
             P: 1})
         acct.append(at)
         if epoch % 100 == 0:
             print(str(epoch) + '  ' + str(a) + '  ' + str(at))
 
         sess.run(training_op, feed_dict={
-            X: data[0:1000, :],
-            Y: label[0:1000, :],
-            S: np.zeros([1000, net.STATE_LEN]),
+            X: data[0:train_end, :],
+            Y: label[0:train_end],
+            S: np.zeros([train_end, net.STATE_LEN]),
             P: 0.5})
 
     # print(sess.run(weights))
