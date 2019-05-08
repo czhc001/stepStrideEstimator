@@ -9,7 +9,7 @@ import sys
 
 
 frame_size = load.FRAME_SIZE
-data, label = load.load_data_and_label('D:\\IdeaProjects\\IdentitySample\\data\\sample1557248511752.csv')
+data, label = load.load_data_and_label('C:/Users/niu/IdeaProjects/IdentitySample/data/sample1557283074375.csv')
 train_end = int(data.shape[0] * 0.5)
 
 X = tf.placeholder(dtype=tf.float64, shape=[None, frame_size], name='X')
@@ -28,7 +28,10 @@ MOVING_AVERAGE_DECAY = 0.99
 
 
 prediction = net.inference(X, S, P)
-print(prediction.name)
+
+print('input_name:' + X.name)
+print('keepprob_name:' + P.name)
+print('output_name:' + prediction.name)
 
 learning_rate = tf.train.exponential_decay(STARTER_LEARNING_RATE, global_step, DECAY_STEPS, DECAY_RATE, staircase=False)
 
@@ -66,7 +69,7 @@ def train_break():
 t = threading.Thread(target=train_break)
 t.setDaemon(True)
 t.start()
-
+saver = tf.train.Saver()
 with tf.control_dependencies([opt_op]):
     training_op = tf.group(variables_averages_op)
 with tf.Session() as sess:
@@ -99,6 +102,7 @@ with tf.Session() as sess:
             P: 0.5})
 
     # print(sess.run(weights))
+    saver.save(sess, "Models/model.ckpt")
 
 accuracy_train = np.array(accuracy_train)
 accuracy_test = np.array(accuracy_test)
