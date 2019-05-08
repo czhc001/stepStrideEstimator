@@ -12,7 +12,6 @@ with gfile.FastGFile('Models/model.pb', 'rb') as f:
 # 需要有一个初始化的过程
 sess.run(tf.global_variables_initializer())
 
-
 # 输入
 X = sess.graph.get_tensor_by_name('X:0')
 P = sess.graph.get_tensor_by_name('P:0')

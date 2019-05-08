@@ -22,7 +22,7 @@ def load_data_and_label(path):
     label = np.array(label, dtype=np.int)
 
     ii = [i for i in range(label.shape[0])]
-    # np.random.shuffle(ii)
+    np.random.shuffle(ii)
     data_ = []
     label_ = []
     for i in range(label.shape[0]):

@@ -3,7 +3,7 @@ import numpy as np
 import load
 
 
-data, label = load.load_data_and_label('C:/Users/niu/IdeaProjects/IdentitySample/data/sample1557283074375.csv')
+data, label = load.load_data_and_label('D:/IdeaProjects/IdentitySample/data/sample1557333239254.csv')
 saver = tf.train.import_meta_graph("Models/model.ckpt.meta")
 
 output_node_names = "output/BiasAdd,X,P"
