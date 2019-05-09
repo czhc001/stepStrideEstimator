@@ -30,22 +30,23 @@ class MyHttpHandler(BaseHTTPRequestHandler):
         length = int(self.headers['Content-Length'])
         readdata = self.rfile.read(length).decode('utf-8')
         post_data = json.loads(readdata)
-        cur_thread = threading.current_thread()
-        time.sleep(5)
+        # cur_thread = threading.current_thread()
+        # time.sleep(5)
         print(1)
-        print(cur_thread.name)
+        # print(cur_thread.name)
         print(post_data['Content'])
         content = post_data['Content'].split(',')
-        feature = np.array(content, dtype=np.float)
+        feature = np.array(content, dtype=np.float32)
         print(feature.shape)
 
         r = sess.run(op, feed_dict={
             X: [feature],
             P: 1.0})
         print(r)
-        __name = 'zc'
+        __name = '张淳'
         if r[0][0] < r[0][1]:
-            __name = 'wjw'
+            __name = '嘉伟  +22'
+        __name = __name + '  [' + ("%.2f" % r[0][0].item()) + ', ' +("%.2f" % r[0][1    ].item()) + ']'
         data = json.dumps({'name': __name})
         enc = "UTF-8"
         encoded = ''.join(data).encode(enc)
