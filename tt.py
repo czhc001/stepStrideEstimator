@@ -39,7 +39,7 @@ class MyHttpHandler(BaseHTTPRequestHandler):
             if last_t == 0 or current_t - last_t > 2000:
                 self.send_response(0)
             else:
-                self.send_response(200)
+                self.send_response(205)
             self.end_headers()
         else:
             last_t = int(round(time.time() * 1000))
