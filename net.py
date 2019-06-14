@@ -28,9 +28,9 @@ def inference(inputs, init_state, keep_prob):
                         weights_initializer=tf.truncated_normal_initializer(0.0, 0.1),
                         weights_regularizer=slim.l2_regularizer(10.0)):
         net = inputs
-        # net = tf.reshape(inputs, [-1, HEIGHT0, WIDTH0, CHANNEL0])
-        # net = slim.conv2d(net, CONV0_C, [CONV0_W, CONV0_H])
-        # net = tf.reshape(net, [-1, net.get_shape()[1] * net.get_shape()[2] * net.get_shape()[3]])
+        net = tf.reshape(inputs, [-1, HEIGHT0, WIDTH0, CHANNEL0])
+        net = slim.conv2d(net, CONV0_C, [CONV0_W, CONV0_H])
+        net = tf.reshape(net, [-1, net.get_shape()[1] * net.get_shape()[2] * net.get_shape()[3]])
         net = tf.nn.dropout(net, keep_prob=keep_prob)
         net = slim.fully_connected(net, FULLY_WIDTH0, scope="fully_connected1", activation_fn=tf.nn.relu)
         net = tf.nn.dropout(net, keep_prob=keep_prob)
