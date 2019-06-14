@@ -55,9 +55,8 @@ class MyHttpHandler(BaseHTTPRequestHandler):
         length = int(self.headers['Content-Length'])
         readdata = self.rfile.read(length).decode('utf-8')
         if readdata == 'B':
-
             sys.stderr.write("%s - - [%s]\n" %
-                             ('aaaa:bbbb:cccc:dddd:b6e6:2dff:fe34:a56d',
+                             (self.address_string(),
                               self.log_date_time_string(),))
             print('BOARD' + current_user)
             if current_user != '' and dict_challenge.__contains__(current_user):
