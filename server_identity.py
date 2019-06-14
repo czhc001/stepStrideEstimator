@@ -90,7 +90,7 @@ class MyHttpHandler(BaseHTTPRequestHandler):
 
             if op == 'C':
                 content = post_data['content']
-                print(content)
+                # print(content)
                 if content == 'id1':
                     reg_result_c = True
                 elif content == 'id0':
