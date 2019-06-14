@@ -9,7 +9,7 @@ import sys
 
 
 frame_size = load.FRAME_SIZE
-data, label = load.load_data_and_label('D:/IdeaProjects/IdentitySample/data/sample1557333239254.csv')
+data, label = load.load_data_and_label('D:/IdeaProjects/IdentitySample/data/sample1560337457785.csv')
 train_end = int(data.shape[0] * 0.5)
 
 X = tf.placeholder(dtype=tf.float64, shape=[None, frame_size], name='X')
